@@ -102,7 +102,7 @@ export default function Home() {
   const voltageStatus =
     !latest ? 'unknown' :
       latest.voltage < 210 ? 'Low' :
-        latest.voltage > 240 ? 'High' :
+        latest.voltage > 250 ? 'High' :
           'Normal'
 
   const chartLineColor =

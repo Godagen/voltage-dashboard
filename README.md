@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Voltage Monitor Dashboard ⚡
 
-## Getting Started
+A lightweight web dashboard for monitoring voltage levels from
+Tuya-based smart relays with historical tracking, anomaly detection, and
+mobile-first UI.
 
-First, run the development server:
+------------------------------------------------------------------------
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Overview
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This project collects voltage data from Tuya devices and visualizes it
+in a modern dashboard.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+    Tuya Devices → GitHub Actions (cron) → Supabase → Next.js UI
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+------------------------------------------------------------------------
 
-## Learn More
+## 🧱 Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+### Frontend
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+-   Next.js (React)
+-   Tailwind CSS
+-   Recharts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Backend / Data
 
-## Deploy on Vercel
+-   Supabase (Postgres)
+-   GitHub Actions
+-   Tuya Cloud API
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+------------------------------------------------------------------------
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ⚙️ Functionality
+
+-   Real-time voltage display (auto-refresh every 10s)
+-   Historical chart (6h / 24h / 7d)
+-   Device switching (by location)
+-   Daily summary (Min / Avg / Max)
+-   Stability score
+-   Trend vs 1-hour average
+
+------------------------------------------------------------------------
+
+## 🎯 Monitoring Features
+
+-   Normal: 207--253 V
+-   Low: \< 207 V
+-   High: \> 253 V
+-   Critical: \< 200 V
+
+------------------------------------------------------------------------
+
+## 🔄 Data Flow
+
+1.  GitHub Action runs every 5 minutes\
+2.  Fetches data via Tuya API\
+3.  Stores in Supabase\
+4.  UI reads from Supabase
+
+------------------------------------------------------------------------
+
+## ▶️ Running Locally
+
+    npm install
+    npm run dev
+
+------------------------------------------------------------------------
+
+## 🚀 Deployment
+
+-   Vercel
+-   Auto deploy via GitHub
+
+------------------------------------------------------------------------
+
+## 🏁 Status
+
+MVP complete

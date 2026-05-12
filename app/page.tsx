@@ -27,7 +27,9 @@ export default function Home() {
   const [devices, setDevices] = useState<Device[]>([])
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('')
   const [data, setData] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
+  // load devices
   useEffect(() => {
     async function loadDevices() {
       const { data, error } = await supabase
@@ -36,7 +38,7 @@ export default function Home() {
         .order('name')
 
       if (error) {
-        console.error(error)
+        console.error('devices error', error)
         return
       }
 
@@ -50,10 +52,13 @@ export default function Home() {
     loadDevices()
   }, [])
 
+  // load readings
   useEffect(() => {
     if (!selectedDeviceId) return
 
     async function loadReadings() {
+      setLoading(true)
+
       const { data, error } = await supabase
         .from('voltage_readings')
         .select('recorded_at, voltage')
@@ -62,7 +67,8 @@ export default function Home() {
         .limit(200)
 
       if (error) {
-        console.error(error)
+        console.error('readings error', error)
+        setLoading(false)
         return
       }
 
@@ -76,84 +82,91 @@ export default function Home() {
         })) || []
 
       setData(formatted)
+      setLoading(false)
     }
 
     loadReadings()
   }, [selectedDeviceId])
 
-  const selectedDevice = devices.find((d) => d.id === selectedDeviceId)
+  const selectedDevice = devices.find(d => d.id === selectedDeviceId)
 
   return (
     <main className="min-h-screen bg-gray-950 text-white p-4">
-      <h1 className="text-xl font-semibold mb-4 text-center">
+      <h1 className="text-xl font-semibold text-center mb-4">
         Voltage Monitor
       </h1>
 
+      {/* Device selector */}
       <div className="mb-4">
-        <label className="block text-sm text-gray-400 mb-2">
-          Device
-        </label>
-
         <select
           value={selectedDeviceId}
           onChange={(e) => setSelectedDeviceId(e.target.value)}
-          className="w-full rounded-xl bg-gray-900 border border-gray-700 p-3 text-white"
+          className="w-full rounded-xl bg-gray-900 border border-gray-700 p-3"
         >
-          {devices.map((device) => (
-            <option key={device.id} value={device.id}>
-              {device.name}
-              {device.location ? ` — ${device.location}` : ''}
+          {devices.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.name} {d.location ? `— ${d.location}` : ''}
             </option>
           ))}
         </select>
       </div>
 
-      <div className="bg-gray-900 rounded-2xl p-4 shadow-lg mb-4">
-        <div className="text-sm text-gray-400">Selected device</div>
+      {/* Current device info */}
+      <div className="bg-gray-900 rounded-2xl p-4 mb-4">
+        <div className="text-sm text-gray-400">Device</div>
         <div className="text-lg font-semibold">
           {selectedDevice?.name || 'Loading...'}
         </div>
-        {selectedDevice?.location && (
-          <div className="text-sm text-gray-500">
-            {selectedDevice.location}
-          </div>
-        )}
+        <div className="text-sm text-gray-500">
+          {selectedDevice?.location}
+        </div>
       </div>
 
+      {/* Chart */}
       <div className="bg-gray-900 rounded-2xl p-3 shadow-lg">
         <div className="w-full h-64">
-          <ResponsiveContainer>
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+          {loading ? (
+            <div className="flex items-center justify-center h-full text-gray-400">
+              Loading...
+            </div>
+          ) : data.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              No data
+            </div>
+          ) : (
+            <ResponsiveContainer>
+              <LineChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
 
-              <XAxis
-                dataKey="time"
-                tick={{ fill: '#9CA3AF', fontSize: 10 }}
-              />
+                <XAxis
+                  dataKey="time"
+                  tick={{ fill: '#9CA3AF', fontSize: 10 }}
+                />
 
-              <YAxis
-                domain={['auto', 'auto']}
-                tick={{ fill: '#9CA3AF', fontSize: 10 }}
-              />
+                <YAxis
+                  domain={['auto', 'auto']}
+                  tick={{ fill: '#9CA3AF', fontSize: 10 }}
+                />
 
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#111827',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#fff',
-                }}
-              />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#111827',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#fff',
+                  }}
+                />
 
-              <Line
-                type="monotone"
-                dataKey="voltage"
-                stroke="#22c55e"
-                strokeWidth={2}
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+                <Line
+                  type="monotone"
+                  dataKey="voltage"
+                  stroke="#22c55e"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
     </main>
